@@ -53,60 +53,29 @@ app.post("/webhook",(req,res)=>{
            // console.log("from"+from);
             //console.log("body param"+msg_body);
 
-            axios({
-                
-                  method: "POST",
-    url: `https://graph.facebook.com/v22.0/${phone_nu_id}/messages?access_token=${token}`,
-    headers: {
-        "Content-Type": "application/json"
-    },
-    data: {
-        messaging_product: "whatsapp",
-        to: from, // número destino
-        type: "template",
-        template: {
-            name: "bienvenido",
-            language: {
-                code: "es"
-            },
-            components: [
-                {
-                    type: "header",
-                    parameters: [
-                        {
-                            type: "image",
-                            image: {
-                                link: "https://i.ibb.co/9HHf9TFm/images.png" // ⚠️ Debe ser HTTPS y pública
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
-    }
-
-                
-            });
+            
 
 
             axios({
-            method: "POST",
+             method: "POST",
             url: `https://graph.facebook.com/v22.0/${phone_nu_id}/messages?access_token=${token}`,
             headers: {
                 "Content-Type": "application/json"
             },
             data: {
                 messaging_product: "whatsapp",
-                to: from,
+                to: from, // número destino
                 type: "interactive",
                 interactive: {
                     type: "button",
                     header: {
-                        type: "text",
-                        text: "Elige una opción"
+                        type: "image",  // El tipo de encabezado es "image"
+                        image: {
+                            link: "https://i.ibb.co/9HHf9TFm/images.png" // URL pública de la imagen
+                        }
                     },
                     body: {
-                        text: "¿En qué te puedo ayudar?"
+                        text: "Bienvenido(a) a Depilzone ¿En qué te podemos ayudarte?"
                     },
                     footer: {
                         text: "Soporte automático"
@@ -117,14 +86,14 @@ app.post("/webhook",(req,res)=>{
                                 type: "reply",
                                 reply: {
                                     id: "btn_opcion_1",
-                                    title: "Consultar saldo"
+                                    title: "Agendar una Cita"
                                 }
                             },
                             {
                                 type: "reply",
                                 reply: {
                                     id: "btn_opcion_2",
-                                    title: "Hablar con un asesor"
+                                    title: "consultar con un asesor"
                                 }
                             },
                             {
@@ -132,6 +101,13 @@ app.post("/webhook",(req,res)=>{
                                 reply: {
                                     id: "btn_opcion_3",
                                     title: "Ver servicios"
+                                }
+                            },
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "btn_opcion_4",
+                                    title: "Acerca de Depilzone"
                                 }
                             }
                         ]
