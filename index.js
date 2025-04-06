@@ -58,53 +58,56 @@ app.post("/webhook",(req,res)=>{
 
             axios({
             method: "POST",
-            url: `https://graph.facebook.com/v22.0/${phone_nu_id}/messages?access_token=${token}`,
-            headers: {
-                "Content-Type": "application/json"
-            },
-            data: {
-                messaging_product: "whatsapp",
-                to: from,
-                type: "interactive",
-                interactive: {
-                    type: "button",
-                    header: {
-                        type: "text",
-                        text: "Bienvenido(a) a Depilzone"
-                    },
-                    body: {
-                        text: "¿En qué podemos ayudarte?"
-                    },
-                    footer: {
-                        text: "Soporte automático"
-                    },
-                    action: {
-                        buttons: [
-                            {
-                                type: "reply",
-                                reply: {
-                                    id: "btn_opcion_1",
-                                    title: "Agendar una cita"
-                                }
-                            },
-                            {
-                                type: "reply",
-                                reply: {
-                                    id: "btn_opcion_2",
-                                    title: "Hablar con un asesor"
-                                }
-                            },
-                            {
-                                type: "reply",
-                                reply: {
-                                    id: "btn_opcion_3",
-                                    title: "Ver servicios"
-                                }
-                            }
-                        ]
+url: `https://graph.facebook.com/v22.0/${phone_nu_id}/messages?access_token=${token}`,
+headers: {
+    "Content-Type": "application/json"
+},
+data: {
+    messaging_product: "whatsapp",
+    to: from, // Número de destino
+    type: "interactive",
+    interactive: {
+        type: "button",
+        header: {
+            type: "image",  // Especificamos que el encabezado es una imagen
+            image: {
+                link: "https://i.ibb.co/HDPPFMVs/images-1.png"  // URL de la imagen pública
+            }
+        },
+        body: {
+            text: "¿En qué podemos ayudarte?"
+        },
+        footer: {
+            text: "Soporte automático"
+        },
+        action: {
+            buttons: [
+                {
+                    type: "reply",
+                    reply: {
+                        id: "btn_opcion_1",
+                        title: "Agendar una cita"
+                    }
+                },
+                {
+                    type: "reply",
+                    reply: {
+                        id: "btn_opcion_2",
+                        title: "Hablar con un asesor"
+                    }
+                },
+                {
+                    type: "reply",
+                    reply: {
+                        id: "btn_opcion_3",
+                        title: "Ver servicios"
                     }
                 }
-            }
+            ]
+        }
+    }
+}
+
         });
 
 
