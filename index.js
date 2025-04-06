@@ -54,18 +54,24 @@ app.post("/webhook",(req,res)=>{
             //console.log("body param"+msg_body);
 
             axios({
-                method:"POST",
-                url:`https://graph.facebook.com/v22.0/${phone_nu_id}/messages?access_token=${token}`,
-                data:{
-                    messaging_product:"whatsapp",
-                    to:from,
-                    text:{
-                        body: "Bienvenido(a) a nuestra plataforma , en que te podemos ayudar"
-                    }
-                },
-                headers:{
-                    "Content-Type":"application/json"
-                }
+                  method: "POST",
+    url: `https://graph.facebook.com/v22.0/${phone_nu_id}/messages?access_token=${token}`,
+    headers: {
+        "Content-Type": "application/json"
+    },
+    data: {
+        messaging_product: "whatsapp",
+        to: from, // número de teléfono en formato internacional
+        type: "template",
+        template: {
+            name: "bienvenido", // 👈 el nombre exacto de la plantilla
+            language: {
+                code: "es" // o el que hayas usado al crear la plantilla
+            }
+        }
+    }
+
+                
             });
             
             res.sendStatus(200);
