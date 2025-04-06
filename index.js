@@ -44,7 +44,7 @@ app.post("/webhook", (req, res) => {
             let msg_body = body_param.entry[0].changes[0].value.messages[0].text.body;
 
             // Si el mensaje recibido es "Agendar una cita", enviar un nuevo mensaje con más opciones
-            if (msg_body.toLowerCase() === "agendar una cita") {
+            if (msg_body.toLowerCase() === "Agendar una cita") {
                 axios({
                     method: "POST",
                     url: `https://graph.facebook.com/v22.0/${phone_nu_id}/messages?access_token=${token}`,
