@@ -102,13 +102,6 @@ app.post("/webhook",(req,res)=>{
                                     id: "btn_opcion_3",
                                     title: "Ver servicios"
                                 }
-                            },
-                            {
-                                type: "reply",
-                                reply: {
-                                    id: "btn_opcion_4",
-                                    title: "Acerca de Depilzone"
-                                }
                             }
                         ]
                     }
