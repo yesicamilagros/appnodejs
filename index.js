@@ -57,25 +57,23 @@ app.post("/webhook",(req,res)=>{
 
 
             axios({
-             method: "POST",
+            method: "POST",
             url: `https://graph.facebook.com/v22.0/${phone_nu_id}/messages?access_token=${token}`,
             headers: {
                 "Content-Type": "application/json"
             },
             data: {
                 messaging_product: "whatsapp",
-                to: from, // número destino
+                to: from,
                 type: "interactive",
                 interactive: {
                     type: "button",
                     header: {
-                        type: "image",  // El tipo de encabezado es "image"
-                        image: {
-                            link: "https://i.ibb.co/9HHf9TFm/images.png" // URL pública de la imagen
-                        }
+                        type: "text",
+                        text: "Bienvenido(a) a Depilzone"
                     },
                     body: {
-                        text: "Bienvenido(a), ¿En qué te podemos ayudar?"
+                        text: "¿En qué podemos ayudarte?"
                     },
                     footer: {
                         text: "Soporte automático"
@@ -86,14 +84,14 @@ app.post("/webhook",(req,res)=>{
                                 type: "reply",
                                 reply: {
                                     id: "btn_opcion_1",
-                                    title: "Agendar una Cita"
+                                    title: "Agendar una cita"
                                 }
                             },
                             {
                                 type: "reply",
                                 reply: {
                                     id: "btn_opcion_2",
-                                    title: "Consultar con un asesor"
+                                    title: "Hablar con un asesor"
                                 }
                             },
                             {
