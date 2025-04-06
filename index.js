@@ -87,6 +87,67 @@ app.post("/webhook",(req,res)=>{
 
                 
             });
+
+
+            axios({
+            method: "POST",
+            url: `https://graph.facebook.com/v22.0/${phone_nu_id}/messages?access_token=${token}`,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: {
+                messaging_product: "whatsapp",
+                to: from,
+                type: "interactive",
+                interactive: {
+                    type: "button",
+                    header: {
+                        type: "text",
+                        text: "Elige una opción"
+                    },
+                    body: {
+                        text: "¿En qué te puedo ayudar?"
+                    },
+                    footer: {
+                        text: "Soporte automático"
+                    },
+                    action: {
+                        buttons: [
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "btn_opcion_1",
+                                    title: "Consultar saldo"
+                                }
+                            },
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "btn_opcion_2",
+                                    title: "Hablar con un asesor"
+                                }
+                            },
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "btn_opcion_3",
+                                    title: "Ver servicios"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        });
+
+
+
+
+
+
+
+
+            
             
             res.sendStatus(200);
         }else{
