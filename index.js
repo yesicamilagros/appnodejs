@@ -75,7 +75,7 @@ data: {
             }
         },
         body: {
-            text: "¿En qué podemos ayudarte?"
+            text: "Bienvenido(a) a Depilzone ¿En qué podemos ayudarte?"
         },
         footer: {
             text: "Soporte automático"
