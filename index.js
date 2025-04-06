@@ -75,7 +75,7 @@ app.post("/webhook",(req,res)=>{
                         }
                     },
                     body: {
-                        text: "Bienvenido(a) a Depilzone, ¿En qué te podemos ayudar?"
+                        text: "Bienvenido(a), ¿En qué te podemos ayudar?"
                     },
                     footer: {
                         text: "Soporte automático"
