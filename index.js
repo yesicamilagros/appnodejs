@@ -64,9 +64,9 @@ app.post("/webhook",(req,res)=>{
         to: from, // número de teléfono en formato internacional
         type: "template",
         template: {
-            name: "bienvenido", // 👈 el nombre exacto de la plantilla
+            name: "hello_world", // 👈 el nombre exacto de la plantilla
             language: {
-                code: "es_ES" // o el que hayas usado al crear la plantilla
+                code: "en_US" // o el que hayas usado al crear la plantilla
             }
         }
     }
