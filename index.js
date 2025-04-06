@@ -66,7 +66,7 @@ app.post("/webhook",(req,res)=>{
         template: {
             name: "bienvenido", // 👈 el nombre exacto de la plantilla
             language: {
-                code: "es" // o el que hayas usado al crear la plantilla
+                code: "es_ES" // o el que hayas usado al crear la plantilla
             }
         }
     }
