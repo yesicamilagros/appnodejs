@@ -31,22 +31,25 @@ app.get("/webhook",(req,res)=>{
    }
 });
 
-
 app.post("/webhook", (req, res) => {
     let body_param = req.body;
-    console.log(JSON.stringify(body_param, null, 2));
+    console.log("Recibido el cuerpo:", JSON.stringify(body_param, null, 2));
 
     if (body_param.object) {
-        if (body_param.entry && body_param.entry[0].changes && body_param.entry[0].changes[0].value.messages && body_param.entry[0].changes[0].value.messages[0]) {
+        if (
+            body_param.entry &&
+            body_param.entry[0].changes &&
+            body_param.entry[0].changes[0].value.messages &&
+            body_param.entry[0].changes[0].value.messages[0]
+        ) {
+            const from = body_param.entry[0].changes[0].value.messages[0].from; // El número del remitente
+            const msg_body = body_param.entry[0].changes[0].value.messages[0].text.body; // El mensaje recibido
 
-            let phone_nu_id = body_param.entry[0].changes[0].value.metadata.phone_number_id;
-            let from = body_param.entry[0].changes[0].value.messages[0].from;
-            let msg_body = body_param.entry[0].changes[0].value.messages[0].text.body;
-
-            // Si el mensaje recibido es "Agendar una cita", enviar un nuevo mensaje con más opciones
-            if (msg_body.toLowerCase() === "Agendar una cita") {
-                axios({
-                    method: "POST",
+            // Responder con un mensaje interactivo (botones)
+            const sendInteractiveMessage = async (message, buttons) => {
+                try {
+                    const response = await axios({
+                       method: "POST",
                     url: `https://graph.facebook.com/v22.0/${phone_nu_id}/messages?access_token=${token}`,
                     headers: {
                         "Content-Type": "application/json"
@@ -58,54 +61,7 @@ app.post("/webhook", (req, res) => {
                         interactive: {
                             type: "button",
                             header: {
-                                type: "text",
-                                text: "Opciones para agendar"
-                            },
-                            body: {
-                                text: "Elige cómo deseas agendar tu cita:"
-                            },
-                            footer: {
-                                text: "Soporte automático"
-                            },
-                            action: {
-                                buttons: [
-                                    {
-                                        type: "url",  // Enlace al sitio web para agendar
-                                        url: "https://mi-website.com/agendar-cita",  // URL del sitio web
-                                        title: "Agendar Online"
-                                    },
-                                    {
-                                        type: "phone_number",  // Enlace a un número de teléfono
-                                        phone_number: "+51936696634",  // Número de teléfono
-                                        title: "Llamar para agendar"
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                })
-                .then(response => {
-                    console.log("Respuesta enviada con opciones:", response.data);
-                })
-                .catch(error => {
-                    console.error("Error al enviar la respuesta:", error.response?.data || error.message);
-                });
-            } else {
-                // Si el mensaje no es "Agendar una cita", enviar el mensaje inicial con opciones
-                axios({
-                    method: "POST",
-                    url: `https://graph.facebook.com/v22.0/${phone_nu_id}/messages?access_token=${token}`,
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    data: {
-                        messaging_product: "whatsapp",
-                        to: from, // Número de destino
-                        type: "interactive",
-                        interactive: {
-                            type: "button",
-                            header: {
-                                type: "image",  // Especificamos que el encabezado es una imagen
+                                type: "image",
                                 image: {
                                     link: "https://i.ibb.co/HDPPFMVs/images-1.png"  // URL de la imagen pública
                                 }
@@ -143,15 +99,72 @@ app.post("/webhook", (req, res) => {
                             }
                         }
                     }
-                })
-                .then(response => {
-                    console.log("Primer mensaje enviado:", response.data);
-                })
-                .catch(error => {
-                    console.error("Error al enviar el primer mensaje:", error.response?.data || error.message);
-                });
-            }
+                    });
+                    console.log("Respuesta interactiva enviada:", response.data);
+                } catch (error) {
+                    console.error("Error al enviar el mensaje interactivo:", error.response?.data || error.message);
+                }
+            };
 
+            // Verificar el mensaje recibido y responder con opciones
+            if (msg_body.toLowerCase() === "Agendar una cita") {
+                // Si el mensaje recibido es "agendar una cita", enviar un mensaje con más opciones
+                sendInteractiveMessage(
+                    "Elige cómo deseas agendar tu cita:",
+                    [
+                        {
+                            type: "url",
+                            url: "https://mi-website.com/agendar-cita",  // URL para agendar online
+                            title: "Agendar Online"
+                        },
+                        {
+                            type: "phone_number",
+                            phone_number: "+1234567890",  // Número de teléfono para agendar por llamada
+                            title: "Llamar para agendar"
+                        }
+                    ]
+                );
+            } else if (msg_body.toLowerCase() === "Hablar con un asesor") {
+                // Si el mensaje recibido es "Hablar con un asesor", enviar la opción de contacto
+                sendInteractiveMessage(
+                    "Si deseas hablar con un asesor, por favor elige cómo contactarnos:",
+                    [
+                        {
+                            type: "phone_number",
+                            phone_number: "+1234567890",  // Número del asesor
+                            title: "Llamar a un asesor"
+                        }
+                    ]
+                );
+            } else {
+                // Si el mensaje no es reconocido, enviar el menú inicial con opciones
+                sendInteractiveMessage(
+                    "¿En qué podemos ayudarte?",
+                    [
+                        {
+                            type: "reply",
+                            reply: {
+                                id: "btn_opcion_1",
+                                title: "Agendar una cita"
+                            }
+                        },
+                        {
+                            type: "reply",
+                            reply: {
+                                id: "btn_opcion_2",
+                                title: "Hablar con un asesor"
+                            }
+                        },
+                        {
+                            type: "reply",
+                            reply: {
+                                id: "btn_opcion_3",
+                                title: "Ver servicios"
+                            }
+                        }
+                    ]
+                );
+            }
             res.sendStatus(200);
         } else {
             res.sendStatus(404);
