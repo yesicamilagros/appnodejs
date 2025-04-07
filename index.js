@@ -31,7 +31,7 @@ app.get("/webhook",(req,res)=>{
    }
 });
 
-app.post("/webhook", (req, res) => {
+app.post("/webhook", async (req, res) => {
     try {
         let body_param = req.body;
         console.log("Recibido el cuerpo:", JSON.stringify(body_param, null, 2));
@@ -48,7 +48,6 @@ app.post("/webhook", (req, res) => {
             const phone_nu_id = body_param.entry[0].changes[0].value.metadata.phone_number_id;
             const msg_body = messageObj.text?.body || "";
 
-            // Función para enviar mensaje interactivo tipo "botón"
             const sendInteractiveMessage = async () => {
                 try {
                     const response = await axios({
@@ -109,17 +108,14 @@ app.post("/webhook", (req, res) => {
                 }
             };
 
-            // Lógica de respuesta según el texto del usuario
             const normalizedMsg = msg_body.toLowerCase().trim();
             if (
                 normalizedMsg === "agendar una cita" ||
                 normalizedMsg === "hablar con un asesor" ||
                 normalizedMsg === "ver servicios"
             ) {
-                // Puedes personalizar las respuestas según el botón, pero usar botones de tipo "reply" únicamente
                 await sendInteractiveMessage();
             } else {
-                // Por defecto, enviar el menú
                 await sendInteractiveMessage();
             }
 
@@ -132,8 +128,6 @@ app.post("/webhook", (req, res) => {
         return res.sendStatus(500);
     }
 });
-
-
 
 
 
