@@ -261,11 +261,10 @@ app.get("/",(req,res)=>{
 
 
 
-
 const express = require("express");
 const body_parser = require("body-parser");
 const axios = require("axios");
-require('dotenv').config();
+require("dotenv").config();
 
 const app = express().use(body_parser.json());
 
@@ -273,7 +272,7 @@ const token = process.env.TOKEN;
 const mytoken = process.env.MYTOKEN;
 
 app.listen(process.env.PORT, () => {
-    console.log("Webhook is listening");
+    console.log("webhook is listening");
 });
 
 app.get("/webhook", (req, res) => {
@@ -292,111 +291,123 @@ app.get("/webhook", (req, res) => {
 
 app.post("/webhook", async (req, res) => {
     try {
-        const body_param = req.body;
-        console.log("Recibido el cuerpo:", JSON.stringify(body_param, null, 2));
+        const body = req.body;
+        console.log("Webhook recibido:\n", JSON.stringify(body, null, 2));
 
-        if (
-            body_param.object &&
-            body_param.entry &&
-            body_param.entry[0].changes &&
-            body_param.entry[0].changes[0].value.messages &&
-            body_param.entry[0].changes[0].value.messages[0]
-        ) {
-            const messageObj = body_param.entry[0].changes[0].value.messages[0];
-            const from = messageObj.from;
-            const phone_nu_id = body_param.entry[0].changes[0].value.metadata.phone_number_id;
+        const entry = body.entry?.[0];
+        const changes = entry?.changes?.[0];
+        const value = changes?.value;
+        const message = value?.messages?.[0];
 
-            if (messageObj.type === "button") {
-                const buttonId = messageObj.button?.payload || messageObj.button?.text || messageObj.button?.reply?.id;
-                console.log("Botón presionado:", buttonId);
+        if (message) {
+            const from = message.from;
+            const phone_number_id = value.metadata.phone_number_id;
 
-                let responseText = "";
+            // Si es un mensaje de tipo texto
+            const textBody = message?.text?.body;
 
-                switch (buttonId) {
+            // Si es una respuesta de botón
+            const buttonReplyID = message?.interactive?.button_reply?.id;
+
+            if (buttonReplyID) {
+                switch (buttonReplyID) {
                     case "btn_opcion_1":
-                        responseText = "Perfecto. Para agendar una cita, por favor dime qué día te gustaría.";
+                        await sendTextMessage(from, phone_number_id, "Perfecto, vamos a agendar tu cita.");
                         break;
                     case "btn_opcion_2":
-                        responseText = "En un momento te contactará uno de nuestros asesores.";
+                        await sendTextMessage(from, phone_number_id, "Un asesor se comunicará contigo pronto.");
                         break;
                     case "btn_opcion_3":
-                        responseText = "Aquí tienes una lista de nuestros servicios: [enlace o lista].";
+                        await sendTextMessage(from, phone_number_id, "Aquí puedes ver nuestros servicios: depilzone.com/servicios");
                         break;
                     default:
-                        responseText = "No entendí esa opción.";
+                        await sendTextMessage(from, phone_number_id, "Opción no reconocida.");
                 }
-
-                await axios.post(`https://graph.facebook.com/v17.0/${phone_nu_id}/messages?access_token=${token}`, {
-                    messaging_product: "whatsapp",
-                    to: from,
-                    type: "text",
-                    text: {
-                        body: responseText
-                    }
-                });
-
-                return res.sendStatus(200);
-            } else if (messageObj.type === "text") {
-                const msg_body = messageObj.text?.body?.toLowerCase().trim() || "";
-
-                await axios.post(`https://graph.facebook.com/v17.0/${phone_nu_id}/messages?access_token=${token}`, {
-                    messaging_product: "whatsapp",
-                    to: from,
-                    type: "interactive",
-                    interactive: {
-                        type: "button",
-                        header: {
-                            type: "image",
-                            image: {
-                                link: "https://i.ibb.co/HDPPFMVs/images-1.png"
-                            }
-                        },
-                        body: {
-                            text: "Bienvenido(a) a Depilzone, ¿En qué podemos ayudarte?"
-                        },
-                        footer: {
-                            text: "Soporte automático"
-                        },
-                        action: {
-                            buttons: [
-                                {
-                                    type: "reply",
-                                    reply: {
-                                        id: "btn_opcion_1",
-                                        title: "Agendar una cita"
-                                    }
-                                },
-                                {
-                                    type: "reply",
-                                    reply: {
-                                        id: "btn_opcion_2",
-                                        title: "Hablar con un asesor"
-                                    }
-                                },
-                                {
-                                    type: "reply",
-                                    reply: {
-                                        id: "btn_opcion_3",
-                                        title: "Ver servicios"
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                });
-
-                return res.sendStatus(200);
+            } else {
+                // Si no es botón, mandamos el mensaje con los botones
+                await sendInteractiveMessage(from, phone_number_id);
             }
-        }
 
-        return res.sendStatus(404);
+            return res.sendStatus(200);
+        } else {
+            return res.sendStatus(404);
+        }
     } catch (err) {
-        console.error("Error procesando el webhook:", err.message);
+        console.error("Error en el webhook:", err.message);
         return res.sendStatus(500);
     }
 });
 
-app.get("/", (req, res) => {
-    res.status(200).send("Hello, esta es mi app");
-});
+async function sendTextMessage(to, phone_number_id, text) {
+    try {
+        await axios.post(
+            `https://graph.facebook.com/v17.0/${phone_number_id}/messages?access_token=${token}`,
+            {
+                messaging_product: "whatsapp",
+                to,
+                text: { body: text }
+            },
+            { headers: { "Content-Type": "application/json" } }
+        );
+    } catch (err) {
+        console.error("Error enviando mensaje:", err.response?.data || err.message);
+    }
+}
+
+async function sendInteractiveMessage(to, phone_number_id) {
+    try {
+        await axios.post(
+            `https://graph.facebook.com/v17.0/${phone_number_id}/messages?access_token=${token}`,
+            {
+                messaging_product: "whatsapp",
+                to,
+                type: "interactive",
+                interactive: {
+                    type: "button",
+                    header: {
+                        type: "image",
+                        image: {
+                            link: "https://i.ibb.co/HDPPFMVs/images-1.png"
+                        }
+                    },
+                    body: {
+                        text: "Bienvenido(a) a Depilzone, ¿En qué podemos ayudarte?"
+                    },
+                    footer: {
+                        text: "Soporte automático"
+                    },
+                    action: {
+                        buttons: [
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "btn_opcion_1",
+                                    title: "Agendar una cita"
+                                }
+                            },
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "btn_opcion_2",
+                                    title: "Hablar con un asesor"
+                                }
+                            },
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "btn_opcion_3",
+                                    title: "Ver servicios"
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            { headers: { "Content-Type": "application/json" } }
+        );
+    } catch (err) {
+        console.error("Error enviando mensaje interactivo:", err.response?.data || err.message);
+    }
+}
+
 
