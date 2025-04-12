@@ -313,6 +313,8 @@ app.post("/webhook", async (req, res) => {
                 switch (buttonReplyID) {
                     case "btn_opcion_1":
                         await sendTextMessage(from, phone_number_id, "Perfecto, vamos a agendar tu cita.");
+                         await sendAppointmentOptions(from, phone_number_id);
+  
                         break;
                     case "btn_opcion_2":
                         await sendTextMessage(from, phone_number_id, "Un asesor se comunicará contigo pronto.");
@@ -409,5 +411,58 @@ async function sendInteractiveMessage(to, phone_number_id) {
         console.error("Error enviando mensaje interactivo:", err.response?.data || err.message);
     }
 }
+
+
+
+async function sendAppointmentOptions(to, phone_number_id) {
+    try {
+        await axios.post(
+            `https://graph.facebook.com/v17.0/${phone_number_id}/messages?access_token=${token}`,
+            {
+                messaging_product: "whatsapp",
+                to,
+                type: "interactive",
+                interactive: {
+                    type: "button",
+                    body: {
+                        text: "¿Qué día te gustaría agendar tu cita?"
+                    },
+                    footer: {
+                        text: "Selecciona una opción por favor"
+                    },
+                    action: {
+                        buttons: [
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "dia_lunes",
+                                    title: "Lunes"
+                                }
+                            },
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "dia_martes",
+                                    title: "Martes"
+                                }
+                            },
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "dia_miercoles",
+                                    title: "Miércoles"
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            { headers: { "Content-Type": "application/json" } }
+        );
+    } catch (err) {
+        console.error("Error enviando opciones de cita:", err.response?.data || err.message);
+    }
+}
+
 
 
