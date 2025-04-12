@@ -327,13 +327,19 @@ app.post("/webhook", async (req, res) => {
                     case "dia_lunes":
                     case "dia_martes":
                     case "dia_miercoles":
-                    await sendTextMessage(from, phone_number_id, "de acuerdo.");
+                   
+                    await sendTextMessage(from, phone_number_id, "Excelente, selecciona un horario disponible:");
+                   await sendTimeOptions(from, phone_number_id);
+                        
                         break;
-                    case "1":
-                    case "2":
-                    case "3":
-                      await sendTextMessage(from, phone_number_id,"perfecto")
+
+                    case "hora_10am":
+                    case "hora_12pm":
+                    case "hora_4pm":
+                        await sendTextMessage(from, phone_number_id, `Tu cita ha sido registrada para las ${buttonReplyID.split('_')[1].toUpperCase().replace('AM', ' AM').replace('PM', ' PM')}. ¡Gracias!`);
                         break;
+
+                    
                     default:
                         await sendTextMessage(from, phone_number_id, "Opción no reconocida.");
                 }
@@ -477,7 +483,8 @@ async function sendAppointmentOptions(to, phone_number_id) {
 }
 
 
-async function sendAppointmentOptionsHour(to, phone_number_id) {
+
+async function sendTimeOptions(to, phone_number_id) {
     try {
         await axios.post(
             `https://graph.facebook.com/v17.0/${phone_number_id}/messages?access_token=${token}`,
@@ -488,32 +495,32 @@ async function sendAppointmentOptionsHour(to, phone_number_id) {
                 interactive: {
                     type: "button",
                     body: {
-                        text: "¿A que hora te gustaría agendar tu cita?"
+                        text: "¿A qué hora te gustaría agendar tu cita?"
                     },
                     footer: {
-                        text: "Selecciona una opción por favor"
+                        text: "Selecciona un horario por favor"
                     },
                     action: {
                         buttons: [
                             {
                                 type: "reply",
                                 reply: {
-                                    id: "1",
-                                    title: "7:00 -8:00 AM"
+                                    id: "hora_10am",
+                                    title: "10:00 AM"
                                 }
                             },
                             {
                                 type: "reply",
                                 reply: {
-                                    id: "2",
-                                    title: "8:00 AM - 9:00 AM"
+                                    id: "hora_12pm",
+                                    title: "12:00 PM"
                                 }
                             },
                             {
                                 type: "reply",
                                 reply: {
-                                    id: "3",
-                                    title: "10:00 AM -11:00 AM"
+                                    id: "hora_4pm",
+                                    title: "4:00 PM"
                                 }
                             }
                         ]
@@ -523,9 +530,8 @@ async function sendAppointmentOptionsHour(to, phone_number_id) {
             { headers: { "Content-Type": "application/json" } }
         );
     } catch (err) {
-        console.error("Error enviando opciones de cita:", err.response?.data || err.message);
+        console.error("Error enviando opciones de horario:", err.response?.data || err.message);
     }
 }
-
 
 
