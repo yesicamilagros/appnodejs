@@ -314,6 +314,7 @@ app.post("/webhook", async (req, res) => {
                     case "btn_opcion_1":
                         await sendTextMessage(from, phone_number_id, "Perfecto, vamos a agendar tu cita.");
                          await sendAppointmentOptions(from, phone_number_id);
+                        await sendAppointmentOptionsHour(to, phone_number_id);
   
                         break;
                     case "btn_opcion_2":
@@ -321,6 +322,17 @@ app.post("/webhook", async (req, res) => {
                         break;
                     case "btn_opcion_3":
                         await sendTextMessage(from, phone_number_id, "Aquí puedes ver nuestros servicios: depilzone.com/servicios");
+                        break;
+
+                    case "dia_lunes":
+                    case "dia_martes":
+                    case "dia_miercoles":
+                    await sendTextMessage(from, phone_number_id, "de acuerdo.");
+                        break;
+                    case "1":
+                    case "2":
+                    case "3":
+                      await sendTextMessage(from, phone_number_id,"perfecto")
                         break;
                     default:
                         await sendTextMessage(from, phone_number_id, "Opción no reconocida.");
@@ -451,6 +463,57 @@ async function sendAppointmentOptions(to, phone_number_id) {
                                 reply: {
                                     id: "dia_miercoles",
                                     title: "Miércoles"
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            { headers: { "Content-Type": "application/json" } }
+        );
+    } catch (err) {
+        console.error("Error enviando opciones de cita:", err.response?.data || err.message);
+    }
+}
+
+
+async function sendAppointmentOptionsHour(to, phone_number_id) {
+    try {
+        await axios.post(
+            `https://graph.facebook.com/v17.0/${phone_number_id}/messages?access_token=${token}`,
+            {
+                messaging_product: "whatsapp",
+                to,
+                type: "interactive",
+                interactive: {
+                    type: "button",
+                    body: {
+                        text: "¿A que hora te gustaría agendar tu cita?"
+                    },
+                    footer: {
+                        text: "Selecciona una opción por favor"
+                    },
+                    action: {
+                        buttons: [
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "1",
+                                    title: "7:00 -8:00 AM"
+                                }
+                            },
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "2",
+                                    title: "8:00 AM - 9:00 AM"
+                                }
+                            },
+                            {
+                                type: "reply",
+                                reply: {
+                                    id: "3",
+                                    title: "10:00 AM -11:00 AM"
                                 }
                             }
                         ]
