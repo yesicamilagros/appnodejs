@@ -314,7 +314,7 @@ app.post("/webhook", async (req, res) => {
                     case "btn_opcion_1":
                         await sendTextMessage(from, phone_number_id, "Perfecto, vamos a agendar tu cita.");
                          await sendAppointmentOptions(from, phone_number_id);
-                        await sendAppointmentOptionsHour(to, phone_number_id);
+                        
   
                         break;
                     case "btn_opcion_2":
