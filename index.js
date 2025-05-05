@@ -496,10 +496,10 @@ async function llama4Groq(prompt, context = "") {
             promptLower.includes(palabra.toLowerCase())
         );
 
-        if (!contienePalabraClave && !context) {
+      /*  if (!contienePalabraClave && !context) {
             return "¿Podrías replantear tu pregunta? Estoy especializado en información sobre: " + 
                    palabrasClave.join(', ') ;
-        }
+        } */
 
         const fullPrompt = context 
             ? `${context}\n\nPor favor responde como asistente de ventas profesional de la clínica Depilzone:\n${prompt}`
