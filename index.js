@@ -138,11 +138,11 @@ app.post("/webhook", async (req, res) => {
             } else {
                 // Si no es botón, mandamos el mensaje con los botones
 
-         //if (){
+                
              
-            const aiResponse = await asistenteVentas(textBody);
+            const aiResponse = await llama4Groq(textBody);
              await sendTextMessage(from, phone_number_id, aiResponse);  
-        // }
+       
              
 
               // await sendInteractiveMessage(from, phone_number_id);
@@ -509,7 +509,7 @@ async function llama4Groq(prompt, context = "") {
             model: "meta-llama/llama-4-scout-17b-16e-instruct",
             messages: [{ 
                 role: "user", 
-                content: fullPrompt 
+                content: prompt  //fullPrompt 
             }],
             temperature: 0.7
         }, {
